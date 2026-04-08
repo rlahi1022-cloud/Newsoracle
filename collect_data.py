@@ -27,7 +27,7 @@ load_dotenv()
 # 수집 설정
 # ─────────────────────────────────────────
 
-TARGET_COUNT = 1000       # 목표 수집 건수
+TARGET_COUNT = 3000       # 목표 수집 건수
 DISPLAY_PER_QUERY = 100   # 쿼리당 최대 수집 건수 (API 최대값)
 REQUEST_DELAY = 0.5       # 요청 간 딜레이 (초) - API 과부하 방지
 OUTPUT_PATH = "data/train_data.csv"
@@ -282,7 +282,7 @@ def save_to_csv(articles: list[dict], output_path: str):
 def main():
     print("=" * 60)
     print("뉴스 학습 데이터 자동 수집 시작")
-    print(f"목표: {TARGET_COUNT}건 (공식 500건 + 비공식 500건)")
+    print(f"목표: {TARGET_COUNT}건 (공식 1500건 + 비공식 1500건)")
     print("=" * 60)
 
     half = TARGET_COUNT // 2

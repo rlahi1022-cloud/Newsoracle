@@ -1,0 +1,286 @@
+[2026-04-07 16:53:58] [INFO] [main] === 학습 모드 시작 | train_path=data/train_data.csv ===
+[2026-04-07 16:54:01] [INFO] [dataset] 학습 데이터 로드 시작: data/train_data.csv
+[2026-04-07 16:54:01] [INFO] [dataset] 총 1000건 로드 | 레이블 분포: {1: 503, 0: 497}
+[2026-04-07 16:54:01] [INFO] [dataset] 토크나이저 로드: snunlp/KR-ELECTRA-discriminator
+[2026-04-07 16:54:03] [INFO] [dataset] train: 800건 | val: 200건
+[2026-04-07 16:54:04] [INFO] [trainer] 학습 시작 | epochs=5 batch=16 lr=2e-05 device=cpu
+[2026-04-07 16:56:47] [INFO] [trainer] epoch=1 step=10/50 loss=0.7077
+[2026-04-07 16:58:16] [INFO] [trainer] epoch=1 step=20/50 loss=0.6683
+[2026-04-07 16:59:41] [INFO] [trainer] epoch=1 step=30/50 loss=0.5957
+[2026-04-07 17:01:08] [INFO] [trainer] epoch=1 step=40/50 loss=0.2278
+[2026-04-07 17:02:35] [INFO] [trainer] epoch=1 step=50/50 loss=0.2351
+[2026-04-07 17:02:35] [INFO] [trainer] epoch=1 완료 | avg_loss=0.5214
+[2026-04-07 17:03:04] [INFO] [evaluator] 평가 완료 | acc=0.9700 prec=1.0000 rec=0.9406 f1=0.9694
+[2026-04-07 17:03:04] [INFO] [evaluator] 
+              precision    recall  f1-score   support
+
+         비공식       0.94      1.00      0.97        99
+          공식       1.00      0.94      0.97       101
+
+    accuracy                           0.97       200
+   macro avg       0.97      0.97      0.97       200
+weighted avg       0.97      0.97      0.97       200
+
+[2026-04-07 17:03:04] [INFO] [trainer] epoch=1 | val_metrics={'accuracy': 0.97, 'precision': 1.0, 'recall': 0.9406, 'f1': 0.9694}
+[2026-04-07 17:03:04] [INFO] [classifier_model] 모델 저장 완료: /home/lms/Desktop/Newsoracle/models/saved/classifier
+[2026-04-07 17:03:04] [INFO] [trainer] 최적 모델 저장 | f1=0.9694
+[2026-04-07 17:04:32] [INFO] [trainer] epoch=2 step=10/50 loss=0.0403
+[2026-04-07 17:06:04] [INFO] [trainer] epoch=2 step=20/50 loss=0.2117
+[2026-04-07 17:07:35] [INFO] [trainer] epoch=2 step=30/50 loss=0.0153
+[2026-04-07 17:09:03] [INFO] [trainer] epoch=2 step=40/50 loss=0.0126
+[2026-04-07 17:10:30] [INFO] [trainer] epoch=2 step=50/50 loss=0.0089
+[2026-04-07 17:10:30] [INFO] [trainer] epoch=2 완료 | avg_loss=0.0425
+[2026-04-07 17:10:59] [INFO] [evaluator] 평가 완료 | acc=0.9800 prec=1.0000 rec=0.9604 f1=0.9798
+[2026-04-07 17:10:59] [INFO] [evaluator] 
+              precision    recall  f1-score   support
+
+         비공식       0.96      1.00      0.98        99
+          공식       1.00      0.96      0.98       101
+
+    accuracy                           0.98       200
+   macro avg       0.98      0.98      0.98       200
+weighted avg       0.98      0.98      0.98       200
+
+[2026-04-07 17:10:59] [INFO] [trainer] epoch=2 | val_metrics={'accuracy': 0.98, 'precision': 1.0, 'recall': 0.9604, 'f1': 0.9798}
+[2026-04-07 17:10:59] [INFO] [classifier_model] 모델 저장 완료: /home/lms/Desktop/Newsoracle/models/saved/classifier
+[2026-04-07 17:10:59] [INFO] [trainer] 최적 모델 저장 | f1=0.9798
+[2026-04-07 17:12:25] [INFO] [trainer] epoch=3 step=10/50 loss=0.0089
+[2026-04-07 17:13:51] [INFO] [trainer] epoch=3 step=20/50 loss=0.0075
+[2026-04-07 17:15:16] [INFO] [trainer] epoch=3 step=30/50 loss=0.0068
+[2026-04-07 17:16:43] [INFO] [trainer] epoch=3 step=40/50 loss=0.0052
+[2026-04-07 17:18:09] [INFO] [trainer] epoch=3 step=50/50 loss=0.0049
+[2026-04-07 17:18:09] [INFO] [trainer] epoch=3 완료 | avg_loss=0.0125
+[2026-04-07 17:18:37] [INFO] [evaluator] 평가 완료 | acc=0.9750 prec=1.0000 rec=0.9505 f1=0.9746
+[2026-04-07 17:18:37] [INFO] [evaluator] 
+              precision    recall  f1-score   support
+
+         비공식       0.95      1.00      0.98        99
+          공식       1.00      0.95      0.97       101
+
+    accuracy                           0.97       200
+   macro avg       0.98      0.98      0.97       200
+weighted avg       0.98      0.97      0.97       200
+
+[2026-04-07 17:18:37] [INFO] [trainer] epoch=3 | val_metrics={'accuracy': 0.975, 'precision': 1.0, 'recall': 0.9505, 'f1': 0.9746}
+[2026-04-07 17:20:03] [INFO] [trainer] epoch=4 step=10/50 loss=0.0047
+[2026-04-07 17:21:28] [INFO] [trainer] epoch=4 step=20/50 loss=0.0045
+[2026-04-07 17:22:54] [INFO] [trainer] epoch=4 step=30/50 loss=0.0043
+[2026-04-07 17:24:20] [INFO] [trainer] epoch=4 step=40/50 loss=0.0039
+[2026-04-07 17:25:47] [INFO] [trainer] epoch=4 step=50/50 loss=0.0042
+[2026-04-07 17:25:47] [INFO] [trainer] epoch=4 완료 | avg_loss=0.0105
+[2026-04-07 17:26:16] [INFO] [evaluator] 평가 완료 | acc=0.9800 prec=1.0000 rec=0.9604 f1=0.9798
+[2026-04-07 17:26:16] [INFO] [evaluator] 
+              precision    recall  f1-score   support
+
+         비공식       0.96      1.00      0.98        99
+          공식       1.00      0.96      0.98       101
+
+    accuracy                           0.98       200
+   macro avg       0.98      0.98      0.98       200
+weighted avg       0.98      0.98      0.98       200
+
+[2026-04-07 17:26:16] [INFO] [trainer] epoch=4 | val_metrics={'accuracy': 0.98, 'precision': 1.0, 'recall': 0.9604, 'f1': 0.9798}
+[2026-04-07 17:27:42] [INFO] [trainer] epoch=5 step=10/50 loss=0.0041
+[2026-04-07 17:29:08] [INFO] [trainer] epoch=5 step=20/50 loss=0.0035
+[2026-04-07 17:30:34] [INFO] [trainer] epoch=5 step=30/50 loss=0.0035
+[2026-04-07 17:32:01] [INFO] [trainer] epoch=5 step=40/50 loss=0.0035
+[2026-04-07 17:33:28] [INFO] [trainer] epoch=5 step=50/50 loss=0.0038
+[2026-04-07 17:33:28] [INFO] [trainer] epoch=5 완료 | avg_loss=0.0145
+[2026-04-07 17:33:56] [INFO] [evaluator] 평가 완료 | acc=0.9900 prec=1.0000 rec=0.9802 f1=0.9900
+[2026-04-07 17:33:56] [INFO] [evaluator] 
+              precision    recall  f1-score   support
+
+         비공식       0.98      1.00      0.99        99
+          공식       1.00      0.98      0.99       101
+
+    accuracy                           0.99       200
+   macro avg       0.99      0.99      0.99       200
+weighted avg       0.99      0.99      0.99       200
+
+[2026-04-07 17:33:56] [INFO] [trainer] epoch=5 | val_metrics={'accuracy': 0.99, 'precision': 1.0, 'recall': 0.9802, 'f1': 0.99}
+[2026-04-07 17:33:57] [INFO] [classifier_model] 모델 저장 완료: /home/lms/Desktop/Newsoracle/models/saved/classifier
+[2026-04-07 17:33:57] [INFO] [trainer] 최적 모델 저장 | f1=0.9900
+[2026-04-07 17:33:57] [INFO] [trainer] 학습 완료 | best_f1=0.9900
+[2026-04-07 17:33:57] [INFO] [main] === 학습 완료 ===
+[2026-04-07 19:44:47] [INFO] [main] === 학습 모드 시작 | train_path=data/train_data.csv ===
+[2026-04-07 19:44:50] [INFO] [dataset] 학습 데이터 로드 시작: data/train_data.csv
+[2026-04-07 19:44:50] [INFO] [dataset] 총 3000건 로드 | 레이블 분포: {1: 1522, 0: 1478}
+[2026-04-07 19:44:50] [INFO] [dataset] 토크나이저 로드: snunlp/KR-ELECTRA-discriminator
+[2026-04-07 19:44:51] [INFO] [dataset] train: 2400건 | val: 600건
+[2026-04-07 19:44:51] [INFO] [trainer] 학습 시작 | epochs=5 batch=16 lr=2e-05 device=cpu
+[2026-04-07 19:46:22] [INFO] [trainer] epoch=1 step=10/150 loss=0.6929
+[2026-04-07 19:47:52] [INFO] [trainer] epoch=1 step=20/150 loss=0.7065
+[2026-04-07 19:49:25] [INFO] [trainer] epoch=1 step=30/150 loss=0.6754
+[2026-04-07 19:50:52] [INFO] [trainer] epoch=1 step=40/150 loss=0.6451
+[2026-04-07 19:52:20] [INFO] [trainer] epoch=1 step=50/150 loss=0.4644
+[2026-04-07 19:53:52] [INFO] [trainer] epoch=1 step=60/150 loss=0.3220
+[2026-04-07 19:55:22] [INFO] [trainer] epoch=1 step=70/150 loss=0.4484
+[2026-04-07 19:56:54] [INFO] [trainer] epoch=1 step=80/150 loss=0.2358
+[2026-04-07 19:58:24] [INFO] [trainer] epoch=1 step=90/150 loss=0.1190
+[2026-04-07 20:00:08] [INFO] [trainer] epoch=1 step=100/150 loss=0.0497
+[2026-04-07 20:01:52] [INFO] [trainer] epoch=1 step=110/150 loss=0.0221
+[2026-04-07 20:03:36] [INFO] [trainer] epoch=1 step=120/150 loss=0.0233
+[2026-04-07 20:05:22] [INFO] [trainer] epoch=1 step=130/150 loss=0.1385
+[2026-04-07 20:07:07] [INFO] [trainer] epoch=1 step=140/150 loss=0.0111
+[2026-04-07 20:08:57] [INFO] [trainer] epoch=1 step=150/150 loss=0.2057
+[2026-04-07 20:08:57] [INFO] [trainer] epoch=1 완료 | avg_loss=0.3233
+[2026-04-07 20:10:48] [INFO] [evaluator] 평가 완료 | acc=0.9850 prec=0.9773 rec=0.9934 f1=0.9853
+[2026-04-07 20:10:48] [INFO] [evaluator] 
+              precision    recall  f1-score   support
+
+         비공식       0.99      0.98      0.98       296
+          공식       0.98      0.99      0.99       304
+
+    accuracy                           0.98       600
+   macro avg       0.99      0.98      0.98       600
+weighted avg       0.99      0.98      0.98       600
+
+[2026-04-07 20:10:48] [INFO] [trainer] epoch=1 | val_metrics={'accuracy': 0.985, 'precision': 0.9773, 'recall': 0.9934, 'f1': 0.9853}
+[2026-04-07 20:10:48] [INFO] [classifier_model] 모델 저장 완료: /home/lms/Desktop/Newsoracle/models/saved/classifier
+[2026-04-07 20:10:48] [INFO] [trainer] 최적 모델 저장 | f1=0.9853
+[2026-04-07 20:12:28] [INFO] [trainer] epoch=2 step=10/150 loss=0.0166
+[2026-04-07 20:14:11] [INFO] [trainer] epoch=2 step=20/150 loss=0.0119
+[2026-04-07 20:15:53] [INFO] [trainer] epoch=2 step=30/150 loss=0.0186
+[2026-04-07 20:17:32] [INFO] [trainer] epoch=2 step=40/150 loss=0.0488
+[2026-04-07 20:19:04] [INFO] [trainer] epoch=2 step=50/150 loss=0.0136
+[2026-04-07 20:20:34] [INFO] [trainer] epoch=2 step=60/150 loss=0.0146
+[2026-04-07 20:22:03] [INFO] [trainer] epoch=2 step=70/150 loss=0.2776
+[2026-04-07 20:23:33] [INFO] [trainer] epoch=2 step=80/150 loss=0.0127
+[2026-04-07 20:25:04] [INFO] [trainer] epoch=2 step=90/150 loss=0.0144
+[2026-04-07 20:26:35] [INFO] [trainer] epoch=2 step=100/150 loss=0.0093
+[2026-04-07 20:28:08] [INFO] [trainer] epoch=2 step=110/150 loss=0.0675
+[2026-04-07 20:29:36] [INFO] [trainer] epoch=2 step=120/150 loss=0.0053
+[2026-04-07 20:31:02] [INFO] [trainer] epoch=2 step=130/150 loss=0.0059
+[2026-04-07 20:32:32] [INFO] [trainer] epoch=2 step=140/150 loss=0.0054
+[2026-04-07 20:34:05] [INFO] [trainer] epoch=2 step=150/150 loss=0.0056
+[2026-04-07 20:34:05] [INFO] [trainer] epoch=2 완료 | avg_loss=0.0546
+[2026-04-07 20:35:39] [INFO] [evaluator] 평가 완료 | acc=0.9917 prec=0.9902 rec=0.9934 f1=0.9918
+[2026-04-07 20:35:39] [INFO] [evaluator] 
+              precision    recall  f1-score   support
+
+         비공식       0.99      0.99      0.99       296
+          공식       0.99      0.99      0.99       304
+
+    accuracy                           0.99       600
+   macro avg       0.99      0.99      0.99       600
+weighted avg       0.99      0.99      0.99       600
+
+[2026-04-07 20:35:39] [INFO] [trainer] epoch=2 | val_metrics={'accuracy': 0.9917, 'precision': 0.9902, 'recall': 0.9934, 'f1': 0.9918}
+[2026-04-07 20:35:40] [INFO] [classifier_model] 모델 저장 완료: /home/lms/Desktop/Newsoracle/models/saved/classifier
+[2026-04-07 20:35:40] [INFO] [trainer] 최적 모델 저장 | f1=0.9918
+[2026-04-07 20:37:15] [INFO] [trainer] epoch=3 step=10/150 loss=0.0048
+[2026-04-07 20:38:45] [INFO] [trainer] epoch=3 step=20/150 loss=0.3091
+[2026-04-07 20:40:19] [INFO] [trainer] epoch=3 step=30/150 loss=0.0058
+[2026-04-07 20:41:53] [INFO] [trainer] epoch=3 step=40/150 loss=0.0094
+[2026-04-07 20:43:28] [INFO] [trainer] epoch=3 step=50/150 loss=0.0067
+[2026-04-07 20:45:03] [INFO] [trainer] epoch=3 step=60/150 loss=0.0069
+[2026-04-07 20:46:39] [INFO] [trainer] epoch=3 step=70/150 loss=0.0063
+[2026-04-07 20:48:13] [INFO] [trainer] epoch=3 step=80/150 loss=0.0060
+[2026-04-07 20:49:47] [INFO] [trainer] epoch=3 step=90/150 loss=0.0135
+[2026-04-07 20:51:29] [INFO] [trainer] epoch=3 step=100/150 loss=0.0044
+[2026-04-07 20:52:54] [INFO] [main] === 추론 모드 시작 | query=기준금리 ===
+[2026-04-07 20:52:54] [INFO] [news_search] 뉴스 수집 시작 | query=기준금리 display=20 sort=date
+[2026-04-07 20:52:54] [INFO] [news_search] 뉴스 수집 완료 | 20건 수집됨
+[2026-04-07 20:52:54] [INFO] [preprocessor] 전처리 시작 | 20건
+[2026-04-07 20:52:54] [INFO] [preprocessor] 전처리 완료 | 20건 유효
+[2026-04-07 20:52:54] [INFO] [feature_extractor] 특징 추출 시작 | 20건
+[2026-04-07 20:52:54] [INFO] [feature_extractor] 특징 추출 완료 | 20건
+[2026-04-07 20:54:49] [INFO] [main] === 추론 모드 시작 | query=기준금리 ===
+[2026-04-07 20:54:49] [INFO] [news_search] 뉴스 수집 시작 | query=기준금리 display=20 sort=date
+[2026-04-07 20:54:50] [INFO] [news_search] 뉴스 수집 완료 | 20건 수집됨
+[2026-04-07 20:54:50] [INFO] [preprocessor] 전처리 시작 | 20건
+[2026-04-07 20:54:50] [INFO] [preprocessor] 전처리 완료 | 20건 유효
+[2026-04-07 20:54:50] [INFO] [feature_extractor] 특징 추출 시작 | 20건
+[2026-04-07 20:54:50] [INFO] [feature_extractor] 특징 추출 완료 | 20건
+[2026-04-07 20:54:50] [INFO] [agency_verifier] 기관 신뢰도 검증 시작 | 20건 | query=기준금리
+[2026-04-07 20:54:50] [DEBUG] [agency_verifier] 기관 검증 완료 | org= count=0 score=0.0 official=False
+[2026-04-07 20:54:50] [DEBUG] [agency_verifier] 기관 검증 완료 | org= count=0 score=0.0 official=False
+[2026-04-07 20:54:50] [DEBUG] [agency_verifier] 기관 검증 완료 | org= count=0 score=0.0 official=False
+[2026-04-07 20:54:50] [DEBUG] [agency_verifier] 기관 검증 완료 | org= count=0 score=0.0 official=False
+[2026-04-07 20:54:50] [DEBUG] [agency_verifier] 기관 검증 완료 | org= count=0 score=0.0 official=False
+[2026-04-07 20:54:50] [DEBUG] [agency_verifier] 기관 검증 완료 | org= count=0 score=0.0 official=False
+[2026-04-07 20:54:50] [DEBUG] [agency_verifier] 기관 검증 완료 | org= count=0 score=0.0 official=False
+[2026-04-07 20:54:50] [DEBUG] [agency_verifier] 기관 검증 완료 | org= count=0 score=0.0 official=False
+[2026-04-07 20:54:50] [DEBUG] [agency_verifier] 기관 검증 완료 | org= count=0 score=0.0 official=False
+[2026-04-07 20:54:50] [DEBUG] [agency_verifier] 기관 검증 완료 | org= count=0 score=0.0 official=False
+[2026-04-07 20:54:50] [DEBUG] [agency_verifier] 기관 검증 완료 | org= count=0 score=0.0 official=False
+[2026-04-07 20:54:50] [DEBUG] [agency_verifier] 기관 검증 완료 | org= count=0 score=0.0 official=False
+[2026-04-07 20:54:50] [DEBUG] [agency_verifier] 기관 검증 완료 | org= count=0 score=0.0 official=False
+[2026-04-07 20:54:50] [DEBUG] [agency_verifier] 기관 검증 완료 | org= count=0 score=0.0 official=False
+[2026-04-07 20:54:50] [DEBUG] [agency_verifier] 기관 검증 완료 | org= count=0 score=0.0 official=False
+[2026-04-07 20:54:50] [DEBUG] [agency_verifier] 기관 검증 완료 | org= count=0 score=0.0 official=False
+[2026-04-07 20:54:50] [DEBUG] [agency_verifier] 기관 검증 완료 | org= count=0 score=0.0 official=False
+[2026-04-07 20:54:50] [DEBUG] [agency_verifier] 기관 검증 완료 | org= count=0 score=0.0 official=False
+[2026-04-07 20:54:50] [DEBUG] [agency_verifier] 기관 검증 완료 | org= count=0 score=0.0 official=False
+[2026-04-07 20:54:50] [DEBUG] [agency_verifier] 기관 검증 완료 | org= count=0 score=0.0 official=False
+[2026-04-07 20:54:50] [INFO] [agency_verifier] 기관 검증 완료 | 총 20건 중 공식 기관 0건
+[2026-04-07 20:54:50] [INFO] [rule_based_scorer] 규칙 기반 점수 계산 시작 | 20건
+[2026-04-07 20:54:50] [INFO] [rule_based_scorer] 규칙 기반 점수 계산 완료 | 평균 점수: 0.1499
+[2026-04-07 20:54:50] [INFO] [semantic_similarity] 의미 유사도 계산 시작 | 20건
+[2026-04-07 20:54:53] [INFO] [semantic_similarity] 임베딩 모델 로드 중: jhgan/ko-sroberta-multitask
+[2026-04-07 20:56:07] [INFO] [semantic_similarity] 임베딩 모델 로드 완료
+[2026-04-07 20:56:09] [INFO] [semantic_similarity] 의미 유사도 계산 완료 | 평균 점수: 0.1433
+[2026-04-07 20:56:09] [INFO] [classifier_model] 분류 모델 추론 시작 | 20건 | batch_size=8
+[2026-04-07 20:56:09] [INFO] [classifier_model] 파인튜닝 모델 로드: /home/lms/Desktop/Newsoracle/models/saved/classifier
+[2026-04-07 20:56:09] [INFO] [classifier_model] 모델 로드 완료 | device=cpu
+[2026-04-07 20:56:12] [INFO] [classifier_model] 분류 모델 추론 완료 | 20건
+[2026-04-07 20:56:12] [INFO] [ensemble] 앙상블 시작 | 20건
+[2026-04-07 20:56:12] [INFO] [ensemble] 앙상블 완료 | 20건
+[2026-04-07 20:56:12] [INFO] [result_writer] CSV 저장 완료: /home/lms/Desktop/Newsoracle/results/기준금리_2026-04-07_205612.csv
+[2026-04-07 20:56:12] [INFO] [main] === 추론 완료 | 결과 저장: /home/lms/Desktop/Newsoracle/results/기준금리_2026-04-07_205612.csv ===
+[2026-04-07 21:10:05] [INFO] [main] === 추론 모드 시작 | query=기준금리 ===
+[2026-04-07 21:10:05] [INFO] [news_search] 뉴스 수집 시작 | query=기준금리 display=20 sort=date
+[2026-04-07 21:10:06] [INFO] [news_search] 뉴스 수집 완료 | 20건 수집됨
+[2026-04-07 21:10:06] [INFO] [preprocessor] 전처리 시작 | 20건
+[2026-04-07 21:10:06] [INFO] [preprocessor] 전처리 완료 | 20건 유효
+[2026-04-07 21:10:06] [INFO] [feature_extractor] 특징 추출 시작 | 20건
+[2026-04-07 21:10:06] [INFO] [feature_extractor] 특징 추출 완료 | 20건
+[2026-04-07 21:10:06] [INFO] [agency_verifier] 기관 신뢰도 검증 시작 | 20건 | query=기준금리
+[2026-04-07 21:10:06] [DEBUG] [agency_verifier] 기관 재검색 | query='디지털투데이 기준금리' | items=20
+[2026-04-07 21:10:06] [DEBUG] [agency_verifier] 기관 검증 완료 | org=디지털투데이 count=20 score=1.0 official=False media=True
+[2026-04-07 21:10:07] [DEBUG] [agency_verifier] 기관 재검색 | query='M이코노미뉴스 기준금리' | items=20
+[2026-04-07 21:10:07] [DEBUG] [agency_verifier] 기관 검증 완료 | org=M이코노미뉴스 count=20 score=1.0 official=False media=True
+[2026-04-07 21:10:07] [DEBUG] [agency_verifier] 기관 검증 완료 | org= count=0 score=0.0 official=False media=False
+[2026-04-07 21:10:07] [DEBUG] [agency_verifier] 기관 검증 완료 | org= count=0 score=0.0 official=False media=False
+[2026-04-07 21:10:07] [DEBUG] [agency_verifier] 기관 재검색 | query='디지털타임스 기준금리' | items=20
+[2026-04-07 21:10:07] [DEBUG] [agency_verifier] 기관 검증 완료 | org=디지털타임스 count=20 score=1.0 official=False media=True
+[2026-04-07 21:10:08] [DEBUG] [agency_verifier] 기관 재검색 | query='서울파이낸스 기준금리' | items=20
+[2026-04-07 21:10:08] [DEBUG] [agency_verifier] 기관 검증 완료 | org=서울파이낸스 count=20 score=1.0 official=False media=True
+[2026-04-07 21:10:08] [DEBUG] [agency_verifier] 기관 재검색 | query='시사위크 기준금리' | items=20
+[2026-04-07 21:10:08] [DEBUG] [agency_verifier] 기관 검증 완료 | org=시사위크 count=20 score=1.0 official=False media=True
+[2026-04-07 21:10:09] [DEBUG] [agency_verifier] 기관 재검색 | query='매일경제 기준금리' | items=20
+[2026-04-07 21:10:09] [DEBUG] [agency_verifier] 기관 검증 완료 | org=매일경제 count=20 score=1.0 official=False media=True
+[2026-04-07 21:10:09] [DEBUG] [agency_verifier] 기관 검증 완료 | org= count=0 score=0.0 official=False media=False
+[2026-04-07 21:10:09] [DEBUG] [agency_verifier] 기관 재검색 | query='머니투데이방송 기준금리' | items=20
+[2026-04-07 21:10:09] [DEBUG] [agency_verifier] 기관 검증 완료 | org=머니투데이방송 count=20 score=1.0 official=False media=True
+[2026-04-07 21:10:10] [DEBUG] [agency_verifier] 기관 재검색 | query='한국경제 기준금리' | items=20
+[2026-04-07 21:10:10] [DEBUG] [agency_verifier] 기관 검증 완료 | org=한국경제 count=20 score=1.0 official=False media=True
+[2026-04-07 21:10:11] [DEBUG] [agency_verifier] 기관 재검색 | query='연합뉴스TV 기준금리' | items=20
+[2026-04-07 21:10:11] [DEBUG] [agency_verifier] 기관 검증 완료 | org=연합뉴스TV count=20 score=1.0 official=False media=True
+[2026-04-07 21:10:11] [DEBUG] [agency_verifier] 기관 검증 완료 | org= count=0 score=0.0 official=False media=False
+[2026-04-07 21:10:11] [DEBUG] [agency_verifier] 기관 재검색 | query='한국경제 기준금리' | items=20
+[2026-04-07 21:10:11] [DEBUG] [agency_verifier] 기관 검증 완료 | org=한국경제 count=20 score=1.0 official=False media=True
+[2026-04-07 21:10:11] [DEBUG] [agency_verifier] 기관 검증 완료 | org= count=0 score=0.0 official=False media=False
+[2026-04-07 21:10:12] [DEBUG] [agency_verifier] 기관 재검색 | query='더벨 기준금리' | items=20
+[2026-04-07 21:10:12] [DEBUG] [agency_verifier] 기관 검증 완료 | org=더벨 count=20 score=1.0 official=False media=True
+[2026-04-07 21:10:12] [DEBUG] [agency_verifier] 기관 재검색 | query='글로벌이코노믹 기준금리' | items=20
+[2026-04-07 21:10:12] [DEBUG] [agency_verifier] 기관 검증 완료 | org=글로벌이코노믹 count=20 score=1.0 official=False media=True
+[2026-04-07 21:10:12] [DEBUG] [agency_verifier] 기관 검증 완료 | org= count=0 score=0.0 official=False media=False
+[2026-04-07 21:10:13] [DEBUG] [agency_verifier] 기관 재검색 | query='MBN 기준금리' | items=20
+[2026-04-07 21:10:13] [DEBUG] [agency_verifier] 기관 검증 완료 | org=MBN count=20 score=1.0 official=False media=True
+[2026-04-07 21:10:13] [DEBUG] [agency_verifier] 기관 검증 완료 | org= count=0 score=0.0 official=False media=False
+[2026-04-07 21:10:13] [INFO] [agency_verifier] 기관 검증 완료 | 총 20건 중 공식 기관 13건
+[2026-04-07 21:10:13] [INFO] [rule_based_scorer] 규칙 기반 점수 계산 시작 | 20건
+[2026-04-07 21:10:13] [INFO] [rule_based_scorer] 규칙 기반 점수 계산 완료 | 평균 점수: 0.1499
+[2026-04-07 21:10:13] [INFO] [semantic_similarity] 의미 유사도 계산 시작 | 20건
+[2026-04-07 21:10:14] [INFO] [semantic_similarity] 임베딩 모델 로드 중: jhgan/ko-sroberta-multitask
+[2026-04-07 21:10:18] [INFO] [semantic_similarity] 임베딩 모델 로드 완료
+[2026-04-07 21:10:20] [INFO] [semantic_similarity] 의미 유사도 계산 완료 | 평균 점수: 0.1433
+[2026-04-07 21:10:20] [INFO] [classifier_model] 분류 모델 추론 시작 | 20건 | batch_size=8
+[2026-04-07 21:10:20] [INFO] [classifier_model] 파인튜닝 모델 로드: /home/lms/Desktop/Newsoracle/models/saved/classifier
+[2026-04-07 21:10:20] [INFO] [classifier_model] 모델 로드 완료 | device=cpu
+[2026-04-07 21:10:23] [INFO] [classifier_model] 분류 모델 추론 완료 | 20건
+[2026-04-07 21:10:23] [INFO] [ensemble] 앙상블 시작 | 20건
+[2026-04-07 21:10:23] [INFO] [ensemble] 앙상블 완료 | 20건
+[2026-04-07 21:10:23] [INFO] [result_writer] CSV 저장 완료: /home/lms/Desktop/Newsoracle/results/기준금리_2026-04-07_211023.csv
+[2026-04-07 21:10:23] [INFO] [main] === 추론 완료 | 결과 저장: /home/lms/Desktop/Newsoracle/results/기준금리_2026-04-07_211023.csv ===
