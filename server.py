@@ -239,6 +239,7 @@ def run_pipeline_background(job_id: str, query: str):
             semantic_scores=semantic_scores,
             classifier_results=classifier_results,
             agency_results=agency_results,
+            features_list=features_list,
         )
 
         # ── 정렬 (오피셜 우선 → 공식성 높은 순) ───────────────
@@ -253,12 +254,20 @@ def run_pipeline_background(job_id: str, query: str):
         # ── related_articles를 앙상블 결과에 병합 ──────────────
         # cross_validator의 중복 필터링에서 보존한 관련 기사 목록을
         # 앙상블 결과에 포함시켜 UI에서 교차 보도 클릭 시 표시할 수 있게 한다.
+        #
+        # [v6 수정] title 대신 originallink로 매칭
+        # 이유: 같은 제목의 기사가 여러 개 있으면 title 매칭은
+        #       첫 번째만 매칭되고 나머지는 빈 리스트가 됨.
+        #       originallink는 기사마다 고유하므로 정확한 매칭 보장.
+        va_map = {}
+        for va in validated_articles:
+            link = va.get("originallink", "")
+            if link:
+                va_map[link] = va.get("related_articles", [])
+
         for result in final_results:
-            title = result.get("title", "")
-            for va in validated_articles:
-                if va.get("title", "") == title:
-                    result["related_articles"] = va.get("related_articles", [])
-                    break
+            link = result.get("originallink", "")
+            result["related_articles"] = va_map.get(link, [])
 
         elapsed = time.time() - start_time
         verified_count = sum(1 for r in final_results if r.get("is_verified", False))

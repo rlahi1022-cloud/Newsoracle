@@ -217,6 +217,7 @@ def run_infer(query: str, output_format: str = "csv") -> None:
             semantic_scores=semantic_scores,
             classifier_results=classifier_results,
             agency_results=agency_results,
+            features_list=features_list,
         )
     except Exception as exc:
         logger.error(f"앙상블 실패: {exc}", exc_info=True)
