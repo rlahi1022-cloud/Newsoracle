@@ -299,7 +299,13 @@ def compute_cluster_reliability(
         + similarity_score * 0.3    # 내용 일치도 (30%)
         + official_bonus * 0.2      # 공식 도메인 가산점 (20%)
     )
-    reliability_score = min(reliability_score + official_bonus, 1.0)
+    reliability_score = reliability_score + official_bonus
+
+    # [v5 변경] 신뢰성 상한 0.999 (100%는 불가능)
+    # 아무리 교차 보도가 많아도 "완벽히 신뢰"는 불가능하다.
+    # 공식성은 기관 직접 발표면 100%가 될 수 있지만,
+    # 신뢰성은 언론 보도 기반이므로 항상 불확실성이 존재한다.
+    reliability_score = min(reliability_score, 0.999)
     reliability_score = round(float(reliability_score), 4)
 
     # ── 5. 신뢰성 판정 근거 메시지 생성 ─────────────────────────────────────
