@@ -15,7 +15,15 @@ import os
 import re
 import requests
 from dotenv import load_dotenv
-from config import OFFICIAL_DOMAINS, ORGANIZATION_PATTERNS
+from config import ORGANIZATION_PATTERNS
+
+# 공식 도메인 키워드 (config에서 분리하여 agency_verifier 내부에서 관리)
+# 기관이 직접 발행하는 도메인만 포함
+OFFICIAL_DOMAINS = [
+    ".go.kr", ".or.kr", ".re.kr", ".ac.kr",
+    "yna.co.kr", "yonhapnewstv.co.kr", "korea.kr",
+    "bok.or.kr", "fsc.go.kr", "fss.or.kr",
+]
 from logger import get_logger
 
 load_dotenv()

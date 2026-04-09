@@ -94,3 +94,24 @@ def print_results_summary(results: list):
             print(f"    검증 메시지: {r.get('verification_message')}")
 
     print("\n" + "=" * 70)
+
+def save_results(results: list, query: str, output_format: str = "csv") -> str:
+    """
+    출력 형식에 따라 결과를 저장하는 통합 래퍼 함수.
+    main.py에서 save_results(results, query, output_format)으로 호출한다.
+
+    Args:
+        results:       앙상블 최종 결과 리스트
+        query:         검색 키워드
+        output_format: "csv" | "json" | "both"
+    Returns:
+        저장된 파일 경로 (both일 경우 csv 경로 반환)
+    """
+    if output_format == "json":
+        return save_as_json(results, query)
+    elif output_format == "both":
+        save_as_json(results, query)
+        return save_as_csv(results, query)
+    else:
+        # 기본값: csv
+        return save_as_csv(results, query)

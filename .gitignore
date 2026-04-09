@@ -1,3 +1,8 @@
 .env
 venv/
 models/saved/
+models/saved/
+*.safetensors
+__pycache__/
+logs/
+results/
