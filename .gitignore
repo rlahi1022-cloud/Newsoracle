@@ -6,3 +6,4 @@ models/saved/
 __pycache__/
 logs/
 results/
+models/saved/
