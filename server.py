@@ -250,8 +250,106 @@ def run_pipeline_background(job_id: str, query: str):
             reverse=True,
         )
 
+        # ── related_articles를 앙상블 결과에 병합 ──────────────
+        # cross_validator의 중복 필터링에서 보존한 관련 기사 목록을
+        # 앙상블 결과에 포함시켜 UI에서 교차 보도 클릭 시 표시할 수 있게 한다.
+        for result in final_results:
+            title = result.get("title", "")
+            for va in validated_articles:
+                if va.get("title", "") == title:
+                    result["related_articles"] = va.get("related_articles", [])
+                    break
+
         elapsed = time.time() - start_time
         verified_count = sum(1 for r in final_results if r.get("is_verified", False))
+
+        # ── 결과 상세 로그 (분석용) ─────────────────────────────
+        # 로그만 보고도 가중합 계산 과정, 판정 근거를 완전히 재현할 수 있도록
+        # config 설정값 + 각 기사별 가중합 분해 + cap 적용 여부를 기록한다.
+        from config import EnsembleConfig
+
+        logger.info(f"[JOB {job_id}] {'═'*60}")
+        logger.info(f"[JOB {job_id}] 결과 요약 | 검색어: {query}")
+        logger.info(f"[JOB {job_id}] {'─'*60}")
+
+        # config 설정값 로그 (어떤 가중치로 계산했는지 기록)
+        logger.info(
+            f"[JOB {job_id}] [CONFIG] "
+            f"가중치: rule={EnsembleConfig.RULE_WEIGHT} "
+            f"sem={EnsembleConfig.SEMANTIC_WEIGHT} "
+            f"clf={EnsembleConfig.CLASSIFIER_WEIGHT} | "
+            f"폴백: rule={EnsembleConfig.FALLBACK_RULE_WEIGHT} "
+            f"sem={EnsembleConfig.FALLBACK_SEMANTIC_WEIGHT} "
+            f"agn={EnsembleConfig.FALLBACK_AGENCY_WEIGHT} | "
+            f"clf_threshold={EnsembleConfig.CLASSIFIER_LOW_CONFIDENCE}"
+        )
+        logger.info(
+            f"[JOB {job_id}] [CONFIG] "
+            f"임계값: 공식성={EnsembleConfig.OFFICIAL_SCORE_THRESHOLD} "
+            f"신뢰성={EnsembleConfig.RELIABILITY_SCORE_THRESHOLD} | "
+            f"agency_bonus_max={EnsembleConfig.AGENCY_BONUS_MAX} | "
+            f"신뢰성 cap=0.999"
+        )
+        logger.info(
+            f"[JOB {job_id}] [STATS] "
+            f"총 {len(final_results)}건 | 오피셜 {verified_count}건 | "
+            f"소요 {elapsed:.1f}초"
+        )
+        logger.info(f"[JOB {job_id}] {'─'*60}")
+
+        # 상위 10건 상세 로그
+        for i, r in enumerate(final_results[:10], 1):
+            rule = r.get('rule_score', 0)
+            sem = r.get('semantic_score', 0)
+            clf = r.get('classifier_score', 0)
+            agn = r.get('agency_score', 0)
+            off = r.get('official_score', 0)
+            rel = r.get('reliability_score', 0)
+            method = r.get('score_method', 'unknown')
+
+            # 가중합 분해 로그
+            if method == 'classifier_included':
+                weighted = (
+                    f"rule*{EnsembleConfig.RULE_WEIGHT}={rule*EnsembleConfig.RULE_WEIGHT:.4f} + "
+                    f"sem*{EnsembleConfig.SEMANTIC_WEIGHT}={sem*EnsembleConfig.SEMANTIC_WEIGHT:.4f} + "
+                    f"clf*{EnsembleConfig.CLASSIFIER_WEIGHT}={clf*EnsembleConfig.CLASSIFIER_WEIGHT:.4f}"
+                )
+                if agn > 0:
+                    bonus = agn * EnsembleConfig.AGENCY_BONUS_MAX
+                    weighted += f" + agn_bonus={bonus:.4f}"
+            else:
+                weighted = (
+                    f"rule*{EnsembleConfig.FALLBACK_RULE_WEIGHT}={rule*EnsembleConfig.FALLBACK_RULE_WEIGHT:.4f} + "
+                    f"sem*{EnsembleConfig.FALLBACK_SEMANTIC_WEIGHT}={sem*EnsembleConfig.FALLBACK_SEMANTIC_WEIGHT:.4f} + "
+                    f"agn*{EnsembleConfig.FALLBACK_AGENCY_WEIGHT}={agn*EnsembleConfig.FALLBACK_AGENCY_WEIGHT:.4f}"
+                )
+
+            # 판정 조건 로그
+            off_pass = "PASS" if off >= EnsembleConfig.OFFICIAL_SCORE_THRESHOLD else "FAIL"
+            rel_pass = "PASS" if rel >= EnsembleConfig.RELIABILITY_SCORE_THRESHOLD else "FAIL"
+            rel_capped = " (capped)" if rel >= 0.999 else ""
+
+            logger.info(
+                f"[JOB {job_id}] [{i:2d}] {r.get('verdict_emoji','')} "
+                f"{r.get('title','')[:40]}"
+            )
+            logger.info(
+                f"[JOB {job_id}]      점수: rule={rule:.4f} sem={sem:.4f} "
+                f"clf={clf:.4f} agn={agn:.4f}"
+            )
+            logger.info(
+                f"[JOB {job_id}]      가중합({method}): {weighted} = {off:.4f}"
+            )
+            logger.info(
+                f"[JOB {job_id}]      판정: 공식성={off:.4f}({off_pass}) "
+                f"신뢰성={rel:.4f}{rel_capped}({rel_pass}) → {r.get('verdict','')}"
+            )
+            if r.get("verdict_reason"):
+                logger.info(
+                    f"[JOB {job_id}]      근거: {r.get('verdict_reason','')}"
+                )
+
+        logger.info(f"[JOB {job_id}] {'═'*60}")
 
         # ── 결과 저장 ─────────────────────────────────────────
         with job_store_lock:

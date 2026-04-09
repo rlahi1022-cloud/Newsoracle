@@ -708,13 +708,18 @@ def _get_domain_priority(article: dict) -> int:
 def _deduplicate_by_cluster(articles: list[dict]) -> list[dict]:
     """
     같은 cluster_id를 가진 기사들 중 대표 1건만 남기고 나머지를 제거한다.
+    제거된 기사들은 대표 기사의 related_articles 필드에 보존한다.
+
+    [v5 변경] related_articles 추가
+      교차 보도 클릭 시 같은 사건을 다룬 다른 뉴스의 제목+출처+링크를
+      UI에서 보여주기 위해, 제거 대상 기사 정보를 대표 기사에 저장한다.
 
     단독 기사(cluster_size=1)는 무조건 유지한다.
 
     Args:
         articles: cluster_id가 부여된 기사 리스트
     Returns:
-        중복이 제거된 기사 리스트
+        중복이 제거된 기사 리스트 (각 대표 기사에 related_articles 포함)
     """
     if not articles:
         return articles
@@ -731,7 +736,8 @@ def _deduplicate_by_cluster(articles: list[dict]) -> list[dict]:
 
     for cluster_id, group in cluster_groups.items():
         if len(group) == 1:
-            # 단독 기사는 무조건 유지
+            # 단독 기사: related_articles 빈 리스트
+            group[0]["related_articles"] = []
             deduplicated.append(group[0])
             continue
 
@@ -747,11 +753,25 @@ def _deduplicate_by_cluster(articles: list[dict]) -> list[dict]:
 
         # 대표 기사 1건만 유지
         representative = group[0]
+
+        # 나머지 기사들을 related_articles에 보존
+        # 제목, 출처, 링크, 도메인만 저장 (전체 데이터는 불필요)
+        related = []
+        for other in group[1:]:
+            related.append({
+                "title": other.get("title", ""),
+                "source": other.get("source", ""),
+                "originallink": other.get("originallink", ""),
+                "domain": other.get("domain", ""),
+            })
+
+        representative["related_articles"] = related
         deduplicated.append(representative)
 
         logger.debug(
             f"클러스터 {cluster_id} | "
             f"{len(group)}건 → 대표: {representative.get('source', '')} | "
+            f"관련 기사 {len(related)}건 보존 | "
             f"'{representative.get('title', '')[:30]}'"
         )
 
