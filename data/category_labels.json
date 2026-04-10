@@ -1,0 +1,27 @@
+{
+  "recent": {
+    "label": "최근 소식",
+    "description": "최근 동향, 근황, 요즘 뉴스",
+    "emoji": "📰"
+  },
+  "official": {
+    "label": "공식 발표",
+    "description": "보도자료, 공식 입장, 기관 성명",
+    "emoji": "📢"
+  },
+  "action": {
+    "label": "활동/일정",
+    "description": "공연, 이벤트, 스케줄, 계획",
+    "emoji": "📅"
+  },
+  "issue": {
+    "label": "논란/이슈",
+    "description": "문제, 갈등, 비판, 사건",
+    "emoji": "⚠️"
+  },
+  "analysis": {
+    "label": "분석/전망",
+    "description": "전문가 분석, 시장 예측, 리뷰",
+    "emoji": "📊"
+  }
+}

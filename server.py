@@ -1,41 +1,49 @@
 """
 server.py
 ────────────────────────────────────────────────────────────────────────────────
-Newsoracle FastAPI 서버
+Newsoracle FastAPI 서버 v4
 
 [역할]
   기존 CLI 파이프라인(main.py)을 HTTP API로 감싸서
   브라우저(HTML UI)에서 검색 요청을 받고 JSON 결과를 반환한다.
 
 [구조]
-  POST /api/search    → 검색 요청 → job_id 즉시 반환
+  POST /api/suggest         → 쿼리 의도 분류 → 카테고리 선택지 반환 (v4 신규)
+  POST /api/search          → 검색 요청 → job_id 즉시 반환 (v4: category 지원)
   GET  /api/result/{job_id} → 결과 조회 (폴링)
-  GET  /               → HTML UI 서빙
+  GET  /api/stream/{job_id} → SSE 스트리밍
+  GET  /                    → HTML UI 서빙
 
 [모델 로드 전략]
-  서버 시작 시 KR-ELECTRA + SentenceTransformer를 1회 로드하고 메모리에 상주.
+  서버 시작 시 KR-ELECTRA + SentenceTransformer + query_expander를 1회 로드.
   이후 요청마다 추론만 수행하므로 모델 로드 시간(~10초)이 제거됨.
 
 [비동기 처리]
   BackgroundTasks로 파이프라인을 백그라운드에서 실행.
-  클라이언트는 즉시 job_id를 받고, 폴링으로 결과가 나오면 화면에 표시.
+  클라이언트는 즉시 job_id를 받고, SSE/폴링으로 결과를 받는다.
+
+[v4 변경사항]
+  1. POST /api/suggest 신규 추가 (쿼리 의도 분류 → 카테고리 제안)
+  2. POST /api/search에 category 파라미터 추가 (Optional)
+  3. run_pipeline_background에 category 분기 로직
+  4. startup에 query_expander.warmup() 추가
+  5. data/category_labels.json 로드 함수 추가
+  6. v3의 상세 로그 블록(config/가중합 분해/판정 PASS-FAIL) 전부 유지
 
 [실행]
   pip install fastapi uvicorn
   python server.py
   → http://localhost:8000 에서 UI 접속
-
-[Flowscope 연결]
-  이 서버가 떠있으면 Flowscope에서 HTTP POST /api/search로 호출 가능.
-  Redis Pub/Sub 리스너도 나중에 추가 가능.
 """
 
 import os
 import sys
+import json
 import uuid
 import time
 import threading
 from datetime import datetime
+from typing import Optional
 
 # 프로젝트 루트를 sys.path에 추가 (services/, training/ import 가능하게)
 PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
@@ -57,7 +65,7 @@ logger = get_logger("server")
 app = FastAPI(
     title="Newsoracle API",
     description="뉴스 공식성 판별 딥러닝 파이프라인 API",
-    version="1.0.0",
+    version="4.0.0",
 )
 
 # ─────────────────────────────────────────────────────────────
@@ -65,16 +73,50 @@ app = FastAPI(
 #
 # 왜 Redis가 아닌 딕셔너리인가:
 #   사용자 1명(시연용), 동시 요청 적음, 서버 재시작 시 결과 소실돼도 무관.
-#   Redis는 대규모 서비스에서 사용하고, 지금은 과한 구조.
 #   나중에 Redis로 교체하려면 이 딕셔너리를 Redis client로 바꾸면 끝.
 # ─────────────────────────────────────────────────────────────
 
-# job_id → {"status": "processing" | "done" | "error", "data": [...], "query": "...", "created_at": "..."}
+# job_id → {"status": "processing" | "done" | "error", "data": [...], ...}
 job_store = {}
 
-# 동시 접근 방어용 락
-# BackgroundTasks가 다른 스레드에서 job_store를 수정할 수 있으므로
+# 동시 접근 방어용 락 (BackgroundTasks가 다른 스레드에서 수정할 수 있음)
 job_store_lock = threading.Lock()
+
+# ─────────────────────────────────────────────────────────────
+# v4 신규: category_labels 로드
+#
+# 왜 전역에 캐싱하는가:
+#   /api/suggest에서 매 요청마다 JSON을 다시 읽으면 불필요한 IO.
+#   서버 기동 시 1회 로드하여 메모리 상주.
+# ─────────────────────────────────────────────────────────────
+
+CATEGORY_LABELS = {}
+
+
+def _load_category_labels():
+    """
+    data/category_labels.json 로드. 서버 기동 시 1회.
+
+    파일 구조 예:
+      {
+        "recent": {"label": "최근 소식", "emoji": "📰", "description": "..."},
+        "official": {"label": "공식 발표", "emoji": "🏛️", "description": "..."},
+        ...
+      }
+
+    파일이 없거나 파싱 실패 시 빈 dict로 fallback — 서버는 계속 기동.
+    """
+    global CATEGORY_LABELS
+    path = os.path.join(PROJECT_ROOT, "data", "category_labels.json")
+    if not os.path.exists(path):
+        logger.warning(f"category_labels.json 없음: {path}")
+        return
+    try:
+        with open(path, "r", encoding="utf-8") as f:
+            CATEGORY_LABELS = json.load(f)
+        logger.info(f"category_labels.json 로드 | {len(CATEGORY_LABELS)}개 카테고리")
+    except Exception as e:
+        logger.error(f"category_labels.json 로드 실패: {e}")
 
 
 # ─────────────────────────────────────────────────────────────
@@ -86,8 +128,9 @@ job_store_lock = threading.Lock()
 # ─────────────────────────────────────────────────────────────
 
 class SearchRequest(BaseModel):
-    """검색 요청 바디"""
+    """검색 요청 바디 (v4: category 추가)"""
     query: str
+    category: Optional[str] = None  # v4: None/"all"이면 전체, 아니면 의도별 검색
     page: int = 1
     page_size: int = 10
 
@@ -99,20 +142,27 @@ class SearchResponse(BaseModel):
     message: str
 
 
+class SuggestRequest(BaseModel):
+    """v4 신규: /api/suggest 요청 바디"""
+    query: str
+
+
 # ─────────────────────────────────────────────────────────────
 # 모델 사전 로드 (서버 시작 시 1회)
 #
 # 왜 startup 이벤트에서 로드하는가:
 #   KR-ELECTRA (~416MB) + SentenceTransformer 로드에 약 10초 소요.
 #   요청마다 로드하면 10초 대기 → 서버 시작 시 1회 로드하면 제거됨.
-#   메모리에 상주하므로 이후 추론은 순수 계산 시간만 소요.
 # ─────────────────────────────────────────────────────────────
 
 @app.on_event("startup")
 def startup_load_models():
-    """서버 시작 시 AI 모델들을 미리 로드한다."""
+    """서버 시작 시 AI 모델들과 라벨/의도 분류기를 미리 로드한다."""
     logger.info("서버 시작 — 모델 사전 로드 시작")
     start = time.time()
+
+    # v4: category_labels.json 로드
+    _load_category_labels()
 
     try:
         # KR-ELECTRA 분류 모델 로드
@@ -130,6 +180,16 @@ def startup_load_models():
     except Exception as e:
         logger.warning(f"임베딩 모델 사전 로드 실패 (추론 시 재시도): {e}")
 
+    try:
+        # v4 신규: query_expander warmup
+        # 의도 분류기(프로토타입 임베딩)와 kiwipiepy 형태소 분석기를 미리 초기화.
+        # 첫 /api/suggest 요청 지연(2~3초) 제거 목적.
+        from services.query_expander import warmup as qe_warmup
+        qe_warmup()
+        logger.info("query_expander warmup 완료")
+    except Exception as e:
+        logger.warning(f"query_expander warmup 실패 (요청 시 재시도): {e}")
+
     elapsed = time.time() - start
     logger.info(f"모델 사전 로드 완료 | 소요시간={elapsed:.1f}초")
 
@@ -142,28 +202,39 @@ def startup_load_models():
 #   - 터미널 출력 제거 (JSON 반환용)
 #   - 결과를 job_store에 저장
 #   - 에러 발생 시 job_store에 에러 상태 기록
+#
+# v4 변경:
+#   - category 인자 추가
+#   - category가 None/"all" → search_news_combined (기존 동작)
+#   - category 지정 → search_news_by_category (v4 신규)
 # ─────────────────────────────────────────────────────────────
 
-def run_pipeline_background(job_id: str, query: str):
+def run_pipeline_background(job_id: str, query: str, category: Optional[str] = None):
     """
-    백그라운드에서 전체 파이프라인을 실행하고
-    결과를 job_store에 저장한다.
-
+    백그라운드에서 전체 파이프라인을 실행하고 결과를 job_store에 저장한다.
     BackgroundTasks.add_task()에 의해 별도 스레드에서 실행됨.
     """
-    logger.info(f"[JOB {job_id}] 파이프라인 시작 | query={query}")
+    logger.info(f"[JOB {job_id}] 파이프라인 시작 | query={query} category={category}")
     start_time = time.time()
 
     try:
-        # ── 1. 뉴스 수집 ─────────────────────────────────────
-        from news_search import search_news_combined
-        articles = search_news_combined(query)
+        # ── 1. 뉴스 수집 (v4: category 분기) ─────────────────
+        if category and category != "all":
+            from news_search import search_news_by_category
+            articles = search_news_by_category(query, category)
+            logger.info(
+                f"[JOB {job_id}] 카테고리 수집 | category={category} → {len(articles)}건"
+            )
+        else:
+            from news_search import search_news_combined
+            articles = search_news_combined(query)
 
         if not articles:
             with job_store_lock:
                 job_store[job_id] = {
                     "status": "done",
                     "query": query,
+                    "category": category,
                     "data": [],
                     "total": 0,
                     "message": f"'{query}'에 대한 검색 결과가 없습니다.",
@@ -186,6 +257,7 @@ def run_pipeline_background(job_id: str, query: str):
                 job_store[job_id] = {
                     "status": "done",
                     "query": query,
+                    "category": category,
                     "data": [],
                     "total": 0,
                     "message": "유효한 기사를 찾지 못했습니다.",
@@ -278,7 +350,9 @@ def run_pipeline_background(job_id: str, query: str):
         from config import EnsembleConfig
 
         logger.info(f"[JOB {job_id}] {'═'*60}")
-        logger.info(f"[JOB {job_id}] 결과 요약 | 검색어: {query}")
+        logger.info(
+            f"[JOB {job_id}] 결과 요약 | 검색어: {query} | 카테고리: {category or 'all'}"
+        )
         logger.info(f"[JOB {job_id}] {'─'*60}")
 
         # config 설정값 로그 (어떤 가중치로 계산했는지 기록)
@@ -365,6 +439,7 @@ def run_pipeline_background(job_id: str, query: str):
             job_store[job_id] = {
                 "status": "done",
                 "query": query,
+                "category": category,
                 "data": final_results,
                 "total": len(final_results),
                 "verified_count": verified_count,
@@ -384,6 +459,7 @@ def run_pipeline_background(job_id: str, query: str):
             job_store[job_id] = {
                 "status": "error",
                 "query": query,
+                "category": category,
                 "data": [],
                 "total": 0,
                 "message": f"분석 중 오류가 발생했습니다: {str(exc)}",
@@ -394,13 +470,84 @@ def run_pipeline_background(job_id: str, query: str):
 # API 엔드포인트
 # ─────────────────────────────────────────────────────────────
 
+@app.post("/api/suggest")
+async def api_suggest(req: SuggestRequest):
+    """
+    v4 신규: 쿼리 의도 분류 → 카테고리 선택지 반환.
+
+    [동작]
+      1. 쿼리 토큰 수가 3개 이상이면 skip_selection=True (이미 구체적 → 모달 스킵)
+      2. classify_intent()로 카테고리 top_k 후보 얻음
+      3. category_labels.json의 한글 라벨/이모지/설명과 병합하여 반환
+
+    [응답 예]
+      {
+        "status": "ok",
+        "query": "삼성전자",
+        "skip_selection": false,
+        "suggestions": [
+          {"category": "official", "label": "공식 발표", "emoji": "🏛️",
+           "description": "기업/기관의 공식 발표", "score": 0.8421},
+          ...
+        ]
+      }
+    """
+    query = (req.query or "").strip()
+    if not query:
+        return {
+            "status": "error",
+            "message": "검색어를 입력해주세요.",
+            "suggestions": [],
+        }
+
+    # 토큰 3개 이상이면 이미 쿼리가 구체적 → 모달 없이 바로 검색
+    token_count = len(query.split())
+    skip = token_count >= 3
+
+    try:
+        from services.query_expander import classify_intent
+        raw = classify_intent(query, top_k=5)
+    except Exception as e:
+        logger.error(f"classify_intent 실패: {e}", exc_info=True)
+        return {
+            "status": "error",
+            "message": "의도 분류 실패",
+            "suggestions": [],
+        }
+
+    # category_labels.json 메타 병합
+    suggestions = []
+    for category, score in raw:
+        meta = CATEGORY_LABELS.get(category, {})
+        suggestions.append({
+            "category": category,
+            "label": meta.get("label", category),
+            "emoji": meta.get("emoji", ""),
+            "description": meta.get("description", ""),
+            "score": round(float(score), 4),
+        })
+
+    logger.info(
+        f"[SUGGEST] query='{query}' skip={skip} → {len(suggestions)}개 카테고리"
+    )
+
+    return {
+        "status": "ok",
+        "query": query,
+        "suggestions": suggestions,
+        "skip_selection": skip,
+    }
+
+
 @app.post("/api/search", response_model=SearchResponse)
 async def api_search(req: SearchRequest, background_tasks: BackgroundTasks):
     """
     검색 요청을 받고 job_id를 즉시 반환한다.
     파이프라인은 백그라운드에서 실행된다.
 
-    요청: POST /api/search {"query": "악뮤"}
+    v4: category 파라미터 지원 (Optional)
+
+    요청: POST /api/search {"query": "악뮤", "category": "official"}
     응답: {"job_id": "abc-123", "status": "processing", "message": "분석 시작"}
     """
     if not req.query or not req.query.strip():
@@ -418,15 +565,23 @@ async def api_search(req: SearchRequest, background_tasks: BackgroundTasks):
         job_store[job_id] = {
             "status": "processing",
             "query": req.query.strip(),
+            "category": req.category,
             "data": [],
             "total": 0,
             "message": "뉴스를 수집하고 분석 중입니다...",
         }
 
-    # 백그라운드에서 파이프라인 실행
-    background_tasks.add_task(run_pipeline_background, job_id, req.query.strip())
+    # 백그라운드에서 파이프라인 실행 (v4: category 전달)
+    background_tasks.add_task(
+        run_pipeline_background,
+        job_id,
+        req.query.strip(),
+        req.category,
+    )
 
-    logger.info(f"검색 요청 접수 | job_id={job_id} query={req.query}")
+    logger.info(
+        f"검색 요청 접수 | job_id={job_id} query={req.query} category={req.category}"
+    )
 
     return SearchResponse(
         job_id=job_id,
@@ -453,6 +608,7 @@ async def api_result(job_id: str, page: int = 1, page_size: int = 10):
         return {
             "status": "processing",
             "query": job.get("query", ""),
+            "category": job.get("category"),
             "message": job.get("message", "분석 중..."),
         }
 
@@ -467,6 +623,7 @@ async def api_result(job_id: str, page: int = 1, page_size: int = 10):
     return {
         "status": job["status"],
         "query": job.get("query", ""),
+        "category": job.get("category"),
         "data": page_data,
         "total": total,
         "verified_count": job.get("verified_count", 0),
@@ -502,7 +659,6 @@ async def api_stream(job_id: str):
     응답: text/event-stream (SSE)
     """
     import asyncio
-    import json
     from starlette.responses import StreamingResponse
 
     async def event_generator():
@@ -524,7 +680,7 @@ async def api_stream(job_id: str):
 
             if job["status"] == "done" or job["status"] == "error":
                 # 작업 완료 — 전체 결과를 한 번에 전송
-                # 첫 페이지 데이터만 전송 (클라이언트에서 페이지네이션은 별도 GET 요청)
+                # 첫 페이지 데이터만 전송 (페이지네이션은 별도 GET 요청)
                 all_data = job.get("data", [])
                 page_data = all_data[:10]  # 첫 10건
                 total = len(all_data)
@@ -533,6 +689,7 @@ async def api_stream(job_id: str):
                 result = {
                     "status": job["status"],
                     "query": job.get("query", ""),
+                    "category": job.get("category"),
                     "data": page_data,
                     "total": total,
                     "verified_count": job.get("verified_count", 0),
@@ -590,15 +747,12 @@ async def serve_index():
 
 # ─────────────────────────────────────────────────────────────
 # 서버 실행
-#
-# python server.py로 직접 실행 가능.
-# 개발 모드: reload=True로 코드 변경 시 자동 재시작.
 # ─────────────────────────────────────────────────────────────
 
 if __name__ == "__main__":
     import uvicorn
 
-    logger.info("Newsoracle 서버 시작 | http://localhost:8000")
+    logger.info("Newsoracle 서버 v4 시작 | http://localhost:8000")
     logger.info("API 문서: http://localhost:8000/docs")
 
     uvicorn.run(
