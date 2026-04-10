@@ -631,8 +631,7 @@ def determine_final_verdict(
             "verdict": "오피셜 검증됨",
             "verdict_emoji": "✅",
             "verdict_reason": (
-                f"공식성 점수({official_score:.2f}) + "
-                f"교차 검증 신뢰성({reliability_score:.2f}) 모두 기준 충족"
+                "공식성과 신뢰성 모두 기준 충족"
             ),
             "is_verified": True,
         }
@@ -641,8 +640,8 @@ def determine_final_verdict(
             "verdict": "공식 표현 확인 (교차 검증 미흡)",
             "verdict_emoji": "⚠️",
             "verdict_reason": (
-                f"공식성 점수({official_score:.2f}) 기준 충족 | "
-                f"교차 검증 부족 (신뢰성={reliability_score:.2f})"
+                "공식성 기준 충족 | "
+                "교차 검증 부족"
             ),
             "is_verified": False,
         }
@@ -651,8 +650,8 @@ def determine_final_verdict(
             "verdict": "교차 보도 확인 (공식 표현 미흡)",
             "verdict_emoji": "⚠️",
             "verdict_reason": (
-                f"교차 검증 신뢰성({reliability_score:.2f}) 기준 충족 | "
-                f"공식 표현 부족 (공식성={official_score:.2f})"
+                "교차 검증 신뢰성 기준 충족 | "
+                "공식 표현 부족"
             ),
             "is_verified": False,
         }
@@ -661,8 +660,8 @@ def determine_final_verdict(
             "verdict": "검증 불가",
             "verdict_emoji": "❌",
             "verdict_reason": (
-                f"공식성({official_score:.2f})과 "
-                f"신뢰성({reliability_score:.2f}) 모두 기준 미달"
+                "공식성과 "
+                "신뢰성 모두 기준 미달"
             ),
             "is_verified": False,
         }
