@@ -29,6 +29,10 @@ config.py
 - [v7] EnsembleConfig 전면 재설계
   폴백 경로 제거 → conditional weighting (3구간)
   항상 4개 모델이 참여하되 classifier 신뢰도에 따라 가중치 동적 조절
+- [v8] 하이브리드 신뢰성 도입 (내부 3축 + 외부)
+  EnsembleConfig에 INTERNAL/EXTERNAL_RELIABILITY_WEIGHT 추가 (각 0.5)
+  내부 3축 가중치: SOURCE_ACCOUNTABILITY/VERIFIABILITY/NEUTRALITY (각 1/3)
+  v7 conditional weighting 구조는 완전 보존
 """
 
 import os
@@ -250,6 +254,16 @@ class EnsembleConfig:
     FALLBACK_RULE_WEIGHT = 0.40
     FALLBACK_SEMANTIC_WEIGHT = 0.35
     FALLBACK_AGENCY_WEIGHT = 0.15
+
+    # ── [v8] 하이브리드 신뢰성 가중치 ────────────────────────
+    # 내부 신뢰성(3축) vs 외부 신뢰성(교차보도) 비율
+    INTERNAL_RELIABILITY_WEIGHT = 0.5
+    EXTERNAL_RELIABILITY_WEIGHT = 0.5
+
+    # 내부 신뢰성 3축 세부 가중치 (합 = 1.0)
+    SOURCE_ACCOUNTABILITY_WEIGHT = 1/3
+    VERIFIABILITY_WEIGHT = 1/3
+    NEUTRALITY_WEIGHT = 1/3
 
 
 # ─────────────────────────────────────────────────────────────
