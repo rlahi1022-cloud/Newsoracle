@@ -225,6 +225,36 @@ python main.py
 
 ---
 
+## 🧪 Tests
+
+총 **61 케이스** · ✅ 56 PASS · ⏭️ 5 SKIP · 성공률 **91.8%**
+
+### 실행
+```bash
+python tests/run_tests.py
+```
+- 실행 결과는 `tests/results/` 에 CSV/MD 형식으로 자동 저장됩니다.
+
+### 모듈별 커버리지
+| 모듈 | 케이스 수 | 설명 |
+|------|----------|------|
+| `test_preprocessor` | 21 | 전처리 파이프라인 (HTML, URL, 도메인 정규화) |
+| `test_rule_based_scorer` | 11 | 룰베이스 신뢰도 스코어링 |
+| `test_ensemble` | 11 | 앙상블 가중치 / 외부 신뢰도 계산 |
+| `test_cross_validator` | 5 | 최종 검증 로직 |
+| `test_helpers` | 7 | 공통 유틸 (JSON I/O, 디렉토리) |
+| `test_server_api` | 5 (SKIP) | API 엔드포인트 *(서버 기동 시 활성화)* |
+
+### 결과 샘플
+<details>
+<summary>전체 결과 펼쳐보기</summary>
+
+[`tests/results/test_results_2026-05-15.md`](./tests/results/test_results_2026-05-15.md) 참고
+
+</details>
+
+---
+
 ## 기술 스택
 
 - **Language**: Python 3
